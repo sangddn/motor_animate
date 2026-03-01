@@ -24,8 +24,20 @@ void main() {
       'colorFilter @ 0%',
     );
 
+    // Midpoint should no longer match the legacy sRGB ColorTween interpolation.
+    await tester.pump(500.ms);
+    final midpointWidget =
+        tester.widget<ColorFiltered>(find.byType(ColorFiltered).last);
+    final legacyMidpoint = ColorTween(begin: begin, end: end).evaluate(
+      const AlwaysStoppedAnimation<double>(0.5),
+    );
+    expect(
+      midpointWidget.colorFilter,
+      isNot(ColorFilter.mode(legacyMidpoint!, blend)),
+    );
+
     // Check end:
-    await tester.pump(1000.ms);
+    await tester.pump(500.ms);
     tester.expectWidgetWithBool<ColorFiltered>(
       (o) => o.colorFilter == ColorFilter.mode(end, blend),
       true,
