@@ -13,6 +13,7 @@ For effects:
 - `delay` offsets start time.
 - `motion` defines progression.
 - No public `duration` or `curve` fields.
+- Package default is `Animate.defaultMotion = const Motion.smoothSpring()`.
 
 For curves, use:
 

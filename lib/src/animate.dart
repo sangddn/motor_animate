@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:motor_animate/src/warn.dart';
+
 import '../motor_animate.dart';
 
 /// The Flutter Animate library makes adding beautiful animated effects to your widgets
@@ -50,8 +51,7 @@ import '../motor_animate.dart';
 // ignore: must_be_immutable
 class Animate extends StatefulWidget with AnimateManager<Animate> {
   /// Default motion for effects when no explicit timing is provided.
-  static Motion defaultMotion =
-      const Motion.linear(Duration(milliseconds: 300));
+  static Motion defaultMotion = const Motion.smoothSpring();
 
   /// If true, then animations will automatically restart whenever a hot reload
   /// occurs. This is useful for testing animations quickly during development.

@@ -19,5 +19,6 @@ flutter run
 ## What to look for
 
 - Effects use `motion:` (not `duration:`/`curve:`).
+- Package default motion is `const Motion.smoothSpring()`.
 - Curves are modeled via `Motion.curved(...)`.
 - Loop/repeat behavior is phase-sequence based.

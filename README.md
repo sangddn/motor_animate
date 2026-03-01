@@ -23,7 +23,13 @@ Text('Hello')
     .scale(delay: 120.ms, motion: Motion.smoothSpring());
 ```
 
-Global default:
+Package default:
+
+```dart
+Animate.defaultMotion == const Motion.smoothSpring();
+```
+
+Override globally if needed:
 
 ```dart
 Animate.defaultMotion = Motion.curved(450.ms, Curves.easeOutCubic);
