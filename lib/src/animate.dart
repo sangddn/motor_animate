@@ -51,7 +51,7 @@ import '../motor_animate.dart';
 // ignore: must_be_immutable
 class Animate extends StatefulWidget with AnimateManager<Animate> {
   /// Default motion for effects when no explicit timing is provided.
-  static Motion defaultMotion = const Motion.smoothSpring();
+  static Motion defaultMotion = const Motion.smoothSpring(snapToEnd: true);
 
   /// If true, then animations will automatically restart whenever a hot reload
   /// occurs. This is useful for testing animations quickly during development.

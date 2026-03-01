@@ -26,7 +26,7 @@ Text('Hello')
 Package default:
 
 ```dart
-Animate.defaultMotion == const Motion.smoothSpring();
+Animate.defaultMotion == const Motion.smoothSpring(snapToEnd: true);
 ```
 
 Override globally if needed:
