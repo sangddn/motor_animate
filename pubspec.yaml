@@ -1,0 +1,27 @@
+name: motor_animate
+description: Flutter Animate API-compatible animations powered by the motor motion engine.
+version: 0.1.0
+repository: https://github.com/sangddn/motor_animate
+topics:
+  - animation
+  - motion
+  - physics
+  - effects
+  - widgets
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.32.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_shaders: ^0.1.2
+  motor: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
