@@ -1,6 +1,7 @@
 import 'package:flutter/animation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:motor/motor.dart';
+import 'package:motor_animate/src/defaults.dart';
 
 typedef AnimateLoopCallback = void Function(int loopCount);
 typedef AnimateSegmentCallback = void Function(
@@ -25,23 +26,30 @@ enum _RepeatPhase { min, max }
 /// This controller is motion-first: imperative methods use [motion], and
 /// sequence playback uses [MotionSequence] phase motions.
 class AnimateController extends Animation<double> {
+  /// Creates an [AnimateController].
+  ///
+  /// If [motion] is not provided, it uses the shared package default motion
+  /// (the same default exposed via `Animate.defaultMotion`).
   AnimateController({
     required TickerProvider vsync,
     this.lowerBound = 0,
     this.upperBound = 1,
     double value = 0,
     this.animationBehavior = AnimationBehavior.normal,
-    Motion motion = const Motion.linear(Duration(milliseconds: 300)),
+    Motion? motion,
   })  : assert(lowerBound <= upperBound),
-        _defaultMotion = motion,
+        _defaultMotion = _resolveInitialMotion(motion),
         _motion = BoundedSingleMotionController(
-          motion: motion,
+          motion: _resolveInitialMotion(motion),
           vsync: vsync,
           initialValue: value,
           lowerBound: lowerBound,
           upperBound: upperBound,
           behavior: animationBehavior,
         );
+
+  static Motion _resolveInitialMotion(Motion? motion) =>
+      motion ?? animateDefaultMotion;
 
   final BoundedSingleMotionController _motion;
 

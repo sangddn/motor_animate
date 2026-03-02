@@ -25,7 +25,7 @@ motion: Motion.curved(400.ms, Curves.easeOut)
 
 `AnimateController` is motion-first:
 
-- Default controller motion is set in constructor.
+- Default controller motion is set in constructor (defaults to `Animate.defaultMotion`).
 - `animateTo` and `animateBack` can override motion per call.
 - `repeat` and `loop` are implemented via motion phase sequences.
 

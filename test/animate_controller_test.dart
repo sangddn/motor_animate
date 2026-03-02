@@ -3,6 +3,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:motor_animate/motor_animate.dart';
 
 void main() {
+  testWidgets('uses Animate.defaultMotion when motion is omitted',
+      (tester) async {
+    await tester.pumpWidget(const SizedBox.shrink());
+    final previousDefault = Animate.defaultMotion;
+    final customDefault = Motion.linear(321.ms);
+    Animate.defaultMotion = customDefault;
+    addTearDown(() => Animate.defaultMotion = previousDefault);
+
+    final controller = AnimateController(vsync: tester);
+    addTearDown(controller.dispose);
+
+    expect(identical(controller.motion, customDefault), isTrue);
+  });
+
   testWidgets('animateTo supports one-shot motion override', (tester) async {
     await tester.pumpWidget(const SizedBox.shrink());
     final controller = AnimateController(

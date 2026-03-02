@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:motor_animate/src/warn.dart';
 
+import 'defaults.dart';
 import '../motor_animate.dart';
 
 /// {@template motor_animate.animate_shared_configuration}
@@ -68,7 +69,11 @@ import '../motor_animate.dart';
 // ignore: must_be_immutable
 class Animate extends StatefulWidget with AnimateManager<Animate> {
   /// Default motion for effects when no explicit timing is provided.
-  static Motion defaultMotion = const Motion.smoothSpring(snapToEnd: true);
+  static Motion get defaultMotion => animateDefaultMotion;
+
+  static set defaultMotion(Motion value) {
+    animateDefaultMotion = value;
+  }
 
   /// Default curve for curve-based effects when no explicit curve is provided.
   static Curve defaultCurve = Cubic(0.4, 0.0, 0.2, 1.0);
