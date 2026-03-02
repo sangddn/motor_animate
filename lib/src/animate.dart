@@ -3,6 +3,23 @@ import 'package:motor_animate/src/warn.dart';
 
 import '../motor_animate.dart';
 
+/// {@template motor_animate.animate_shared_configuration}
+/// Shared configuration for [Animate] and [AnimateWidgetExtensions.animate]:
+///
+/// - [effects]: optional effect list to seed before chained calls.
+/// - [onInit]: called once after an internal controller is initialized.
+/// - [onPlay]: called whenever autoplay (or replay) starts.
+/// - [onComplete]: called when the timeline completes.
+/// - [autoPlay]: if `false`, suppresses automatic playback.
+/// - [delay]: one-time startup delay before playback.
+/// - [controller]: external [AnimateController] to drive this instance.
+/// - [adapter]: external source adapter; takes over controller progress.
+/// - [target]: declarative target value (`0..1`) to animate toward.
+/// - [initialTarget]: one-time starting value for the first target-driven play.
+/// - [replayOnChange]: changing value triggers a replay pass.
+/// - [value]: immediate controller position (`0..1`).
+/// {@endtemplate}
+///
 /// The Flutter Animate library makes adding beautiful animated effects to your widgets
 /// simple. It supports both a declarative and chained API. The latter is exposed
 /// via the `Widget.animate` extension, which simply wraps the widget in `Animate`.
@@ -108,8 +125,11 @@ class Animate extends StatefulWidget with AnimateManager<Animate> {
     },
   };
 
-  /// Creates an Animate instance that will manage a list of effects and apply
-  /// them to the specified child.
+  /// Creates an [Animate] instance that manages effects for [child].
+  ///
+  /// The [child] defaults to a zero-sized box when omitted.
+  ///
+  /// {@macro motor_animate.animate_shared_configuration}
   Animate({
     super.key,
     this.child = const SizedBox.shrink(),
@@ -453,6 +473,8 @@ extension AnimateWidgetExtensions on Widget {
   /// Wraps the target [Widget] in an [Animate] instance, and returns
   /// the instance for chaining calls.
   /// Ex. `myWidget.animate()` is equivalent to `Animate(child: myWidget)`.
+  ///
+  /// {@macro motor_animate.animate_shared_configuration}
   Animate animate({
     Key? key,
     List<Effect>? effects,
