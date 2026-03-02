@@ -104,4 +104,131 @@ void main() {
       'opacity',
     );
   });
+
+  testWidgets('replayOnChange replays when the value changes', (tester) async {
+    Widget buildAnim(bool isCollapsed) {
+      return const FlutterLogo()
+          .animate(
+            replayOnChange: isCollapsed,
+          )
+          .fade(motion: Motion.linear(1.seconds));
+    }
+
+    await tester.pumpAnimation(buildAnim(false), initialDelay: 1.seconds);
+    tester.expectWidgetWithDouble<FadeTransition>(
+      (w) => w.opacity.value,
+      1,
+      'opacity',
+    );
+
+    await tester.pumpAnimation(buildAnim(true), initialDelay: 500.ms);
+    tester.expectWidgetWithDouble<FadeTransition>(
+      (w) => w.opacity.value,
+      .5,
+      'opacity',
+    );
+  });
+
+  testWidgets('replayOnChange does not replay when the value is unchanged',
+      (tester) async {
+    Widget buildAnim(bool isCollapsed) {
+      return const FlutterLogo()
+          .animate(
+            replayOnChange: isCollapsed,
+          )
+          .fade(motion: Motion.linear(1.seconds));
+    }
+
+    await tester.pumpAnimation(buildAnim(false), initialDelay: 1.seconds);
+    tester.expectWidgetWithDouble<FadeTransition>(
+      (w) => w.opacity.value,
+      1,
+      'opacity',
+    );
+
+    await tester.pumpAnimation(buildAnim(false), initialDelay: 500.ms);
+    tester.expectWidgetWithDouble<FadeTransition>(
+      (w) => w.opacity.value,
+      1,
+      'opacity',
+    );
+  });
+
+  testWidgets('replayOnChange can replay even when autoPlay is false',
+      (tester) async {
+    Widget buildAnim(bool isCollapsed) {
+      return const FlutterLogo()
+          .animate(
+            autoPlay: false,
+            replayOnChange: isCollapsed,
+          )
+          .fade(motion: Motion.linear(1.seconds));
+    }
+
+    await tester.pumpAnimation(buildAnim(false), initialDelay: 500.ms);
+    tester.expectWidgetWithDouble<FadeTransition>(
+      (w) => w.opacity.value,
+      0,
+      'opacity',
+    );
+
+    await tester.pumpAnimation(buildAnim(true), initialDelay: 500.ms);
+    tester.expectWidgetWithDouble<FadeTransition>(
+      (w) => w.opacity.value,
+      .5,
+      'opacity',
+    );
+  });
+
+  testWidgets('initialTarget animates to initial target on first build',
+      (tester) async {
+    Widget buildAnim(double target) {
+      return const FlutterLogo()
+          .animate(
+            target: target,
+            initialTarget: 0,
+          )
+          .fade(motion: Motion.linear(1.seconds));
+    }
+
+    await tester.pumpAnimation(buildAnim(1), initialDelay: 500.ms);
+    tester.expectWidgetWithDouble<FadeTransition>(
+      (w) => w.opacity.value,
+      .5,
+      'opacity',
+    );
+
+    await tester.pump(500.ms);
+    tester.expectWidgetWithDouble<FadeTransition>(
+      (w) => w.opacity.value,
+      1,
+      'opacity',
+    );
+  });
+
+  testWidgets('initialTarget only applies to first target playback',
+      (tester) async {
+    Widget buildAnim(double target) {
+      return const FlutterLogo()
+          .animate(
+            target: target,
+            initialTarget: 0,
+          )
+          .fade(motion: Motion.linear(1.seconds));
+    }
+
+    await tester.pumpAnimation(buildAnim(1), initialDelay: 1.seconds);
+    tester.expectWidgetWithDouble<FadeTransition>(
+      (w) => w.opacity.value,
+      1,
+      'opacity',
+    );
+
+    await tester.pumpAnimation(buildAnim(0.5), initialDelay: 250.ms);
+    tester.expectWidgetWithDouble<FadeTransition>(
+      (w) => w.opacity.value,
+      .875,
+      'opacity',
+    );
+  });
 }
