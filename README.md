@@ -8,7 +8,10 @@ Motion-native animation effects for Flutter.
 
 ```yaml
 dependencies:
-  motor_animate: ^0.1.0
+  motor_animate:
+    git:
+      url: https://github.com/sangddn/motor_animate.git
+      ref: main
 ```
 
 ## Quick start
@@ -21,6 +24,17 @@ Text('Hello')
     .animate()
     .fadeIn(motion: Motion.linear(300.ms))
     .scale(delay: 120.ms, motion: Motion.smoothSpring());
+
+// replay on state changes
+Text('Filters')
+    .animate(replayOnChange: isCollapsed)
+    .fadeIn(motion: Motion.linear(220.ms))
+    .slideY(begin: 0.1);
+
+// first build animates 0 -> target, then target drives normally
+Text('Badge')
+    .animate(target: 1, initialTarget: 0)
+    .fadeIn(motion: Motion.linear(280.ms));
 ```
 
 Package default:
