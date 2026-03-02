@@ -53,6 +53,12 @@ class Animate extends StatefulWidget with AnimateManager<Animate> {
   /// Default motion for effects when no explicit timing is provided.
   static Motion defaultMotion = const Motion.smoothSpring(snapToEnd: true);
 
+  /// Default curve for curve-based effects when no explicit curve is provided.
+  static Curve defaultCurve = Cubic(0.4, 0.0, 0.2, 1.0);
+
+  /// Default duration for curve-based effects when no explicit duration is provided.
+  static Duration defaultDuration = Duration(milliseconds: 300);
+
   /// If true, then animations will automatically restart whenever a hot reload
   /// occurs. This is useful for testing animations quickly during development.
   ///
@@ -117,11 +123,13 @@ class Animate extends StatefulWidget with AnimateManager<Animate> {
     this.adapter,
     this.value,
     this.target,
+    this.initialTarget,
+    this.replayOnChange,
   })  : autoPlay = autoPlay ?? true,
         delay = delay ?? Duration.zero {
     warn(
-      autoPlay != false || onPlay == null,
-      'Animate.onPlay is not called when Animate.autoPlay=false',
+      autoPlay != false || onPlay == null || replayOnChange != null,
+      'Animate.onPlay is not called when Animate.autoPlay=false unless Animate.replayOnChange triggers playback',
     );
     warn(
       controller == null || onInit == null,
@@ -134,6 +142,10 @@ class Animate extends StatefulWidget with AnimateManager<Animate> {
       warn(target == null, '$s Animate.target');
       warn(value == null, '$s Animate.value');
     }
+    warn(
+      initialTarget == null || target != null,
+      'Animate.initialTarget has no effect without Animate.target',
+    );
     _entries = [];
     if (effects != null) addEffects(effects);
   }
@@ -161,8 +173,8 @@ class Animate extends StatefulWidget with AnimateManager<Animate> {
   /// Called when the animation begins playing (ie. after [Animate.delay],
   /// immediately after [AnimateController.forward] is called).
   /// Provides an opportunity to manipulate the [AnimateController]
-  /// (ex. to loop, reverse, stop, etc). This is never called if [autoPlay]
-  /// is `false`. See also: [onInit].
+  /// (ex. to loop, reverse, stop, etc). This is not called if [autoPlay]
+  /// is `false`, unless [replayOnChange] triggers a replay. See also: [onInit].
   ///
   /// For example, this would pause the animation at its start:
   /// ```
@@ -219,6 +231,27 @@ class Animate extends StatefulWidget with AnimateManager<Animate> {
   ///   .fade(end: 0.8).scaleXY(end: 1.1)
   /// ```
   final double? target;
+
+  /// Sets the starting value used for the first target-driven playback.
+  /// This allows an initial transition even when [target] starts at its final value.
+  ///
+  /// For example, this animates from `0` to `1` on first build, then continues
+  /// using [target] updates normally:
+  ///
+  /// ```
+  /// MyPanel().animate(target: 1, initialTarget: 0).fade()
+  /// ```
+  final double? initialTarget;
+
+  /// Replays the animation whenever this value changes between widget rebuilds.
+  /// This is useful for one-shot state transitions without having to allocate a
+  /// new key.
+  ///
+  /// Ex. replay a collapse/expand transition when `_isCollapsed` changes:
+  /// ```
+  /// MyPanel().animate(replayOnChange: _isCollapsed).fade().scale()
+  /// ```
+  final Object? replayOnChange;
 
   /// Sets an initial position for the animation between 0 (start) and 1 (end).
   /// This corresponds to the `value` of the animation's [controller].
@@ -280,6 +313,7 @@ class Animate extends StatefulWidget with AnimateManager<Animate> {
 class _AnimateState extends State<Animate> with SingleTickerProviderStateMixin {
   late AnimateController _controller;
   bool _isInternalController = false;
+  bool _isFirstPlay = true;
   Adapter? _adapter;
   Future<void>? _delayed;
 
@@ -298,8 +332,9 @@ class _AnimateState extends State<Animate> with SingleTickerProviderStateMixin {
     } else if (oldWidget.adapter != widget.adapter) {
       _initAdapter();
     } else if (widget.target != oldWidget.target ||
-        widget.value != oldWidget.value) {
-      _play();
+        widget.value != oldWidget.value ||
+        widget.replayOnChange != oldWidget.replayOnChange) {
+      _play(forceReplay: widget.replayOnChange != oldWidget.replayOnChange);
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -312,6 +347,7 @@ class _AnimateState extends State<Animate> with SingleTickerProviderStateMixin {
 
   void _restart() {
     _delayed?.ignore();
+    _isFirstPlay = true;
     _initController();
     _updateValue();
     _delayed = Future.delayed(widget.delay, () => _play());
@@ -371,13 +407,18 @@ class _AnimateState extends State<Animate> with SingleTickerProviderStateMixin {
     }
   }
 
-  void _play() {
+  void _play({bool forceReplay = false}) {
     _delayed?.ignore(); // for poorly timed hot reloads.
     _updateValue();
     double? pos = widget.target;
     if (pos != null) {
+      if (_isFirstPlay && widget.initialTarget != null) {
+        _controller.value = widget.initialTarget!;
+      }
+      _isFirstPlay = false;
       _controller.animateTo(pos);
-    } else if (widget.autoPlay && _adapter == null) {
+    } else if ((widget.autoPlay || forceReplay) && _adapter == null) {
+      _isFirstPlay = false;
       _controller.forward(from: widget.value ?? 0);
       widget.onPlay?.call(_controller);
     }
@@ -423,6 +464,8 @@ extension AnimateWidgetExtensions on Widget {
     AnimateController? controller,
     Adapter? adapter,
     double? target,
+    double? initialTarget,
+    Object? replayOnChange,
     double? value,
   }) =>
       Animate(
@@ -436,6 +479,8 @@ extension AnimateWidgetExtensions on Widget {
         controller: controller,
         adapter: adapter,
         target: target,
+        initialTarget: initialTarget,
+        replayOnChange: replayOnChange,
         value: value,
         child: this,
       );
