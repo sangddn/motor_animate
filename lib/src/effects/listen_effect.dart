@@ -19,7 +19,7 @@ import '../../motor_animate.dart';
 /// ```
 /// Text("Hello").animate()
 ///  .fadeIn(motion: Motion.curved(900.ms, Curves.easeOutExpo))
-///  .listen(callback: (value) => print('current opacity: $value'))
+///  .listen(onValue: (value) => print('current opacity: $value'))
 /// ```
 ///
 /// This can easily be used to drive a [ValueNotifier]:
@@ -28,7 +28,7 @@ import '../../motor_animate.dart';
 /// ValueNotifier<double> notifier = ValueNotifier<double>(0);
 /// Text("Hello").animate()
 ///   .fadeIn(delay: 400.ms, motion: Motion.linear(900.ms))
-///   .listen(callback: (value) => notifier.value)
+///   .listen(onValue: (value) => notifier.value)
 /// ```
 ///
 /// See also: [CustomEffect] and [CallbackEffect].
@@ -39,14 +39,20 @@ class ListenEffect extends Effect<double> {
     super.motion,
     double? begin,
     double? end,
-    required this.callback,
+    this.onValue,
+    this.onStatus,
     this.clamp = true,
-  }) : super(
+  })  : assert(
+          onValue != null || onStatus != null,
+          'Either onValue or onStatus must be provided',
+        ),
+        super(
           begin: begin ?? 0.0, // Should this use "smart" defaults?
           end: end ?? 1.0,
         );
 
-  final ValueChanged<double> callback;
+  final ValueChanged<double>? onValue;
+  final ValueChanged<AnimationStatus>? onStatus;
   final bool clamp;
 
   @override
@@ -62,13 +68,24 @@ class ListenEffect extends Effect<double> {
       motion: Motion.linear(entry.span),
     );
     double prev = 0.0, begin = this.begin ?? 0.0, end = this.end ?? 1.0;
-    animation.addListener(() {
-      double value = animation.value;
-      if (!clamp || value != prev) {
-        callback(begin + (end - begin) * entry.transform(value));
-        prev = value;
-      }
-    });
+    if (onValue != null) {
+      animation.addListener(() {
+        double value = animation.value;
+        if (!clamp || value != prev) {
+          onValue?.call(begin + (end - begin) * entry.transform(value));
+          prev = value;
+        }
+      });
+    }
+    AnimationStatus prevStatus = animation.status;
+    if (onStatus != null) {
+      animation.addStatusListener((status) {
+        if (status != prevStatus) {
+          onStatus?.call(status);
+          prevStatus = status;
+        }
+      });
+    }
     return child;
   }
 }
@@ -82,7 +99,8 @@ extension ListenEffectExtensions<T extends AnimateManager<T>> on T {
     Motion? motion,
     double? begin,
     double? end,
-    required ValueChanged<double> callback,
+    ValueChanged<double>? onValue,
+    ValueChanged<AnimationStatus>? onStatus,
     bool clamp = true,
   }) =>
       addEffect(
@@ -91,7 +109,8 @@ extension ListenEffectExtensions<T extends AnimateManager<T>> on T {
           motion: motion,
           begin: begin,
           end: end,
-          callback: callback,
+          onValue: onValue,
+          onStatus: onStatus,
           clamp: clamp,
         ),
       );

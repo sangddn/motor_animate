@@ -10,7 +10,7 @@ void main() {
     final animation = const FlutterLogo()
         .animate()
         .fadeIn(motion: Motion.linear(1000.ms))
-        .listen(callback: (o) => value = o);
+        .listen(onValue: (o) => value = o);
 
     // Check value halfway
     await tester.pumpAnimation(animation, initialDelay: 500.ms);
