@@ -8,3 +8,4 @@ export 'src/effect_list.dart';
 export 'src/effects/effects.dart';
 export 'src/extensions/extensions.dart';
 export 'src/motor_animate.dart';
+export 'src/utils/utils.dart';
