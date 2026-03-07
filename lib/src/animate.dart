@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:motor_animate/src/warn.dart';
 
-import 'defaults.dart';
 import '../motor_animate.dart';
+import 'defaults.dart';
 
 /// {@template motor_animate.animate_shared_configuration}
 /// Shared configuration for [Animate] and [AnimateWidgetExtensions.animate]:
