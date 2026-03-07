@@ -37,6 +37,43 @@ Lifecycle hooks:
 
 `playSequence` exposes typed phase playback directly for advanced graphs.
 
+## Animated presence
+
+`AnimatedPresence` is a small utility for mount/unmount transitions.
+
+- Pass a non-null child while the underlying data says the child exists.
+- Pass `null` immediately when the data says it is gone.
+- The last non-null child is retained just long enough to run `onDisappear`.
+
+Use it for presence, not switching. It is not meant to coordinate transitions
+between different non-null children; for that, use a dedicated switching
+pattern such as `AnimatedSwitcher`.
+
+## Collection presence
+
+`MultiAnimatedPresence` applies the same idea to keyed collections.
+
+- Provide `items` plus a stable `keyOf` callback.
+- Build each row with `itemBuilder`.
+- Choose the underlying host with the delegate exposed to `builder`.
+
+Typical hosts:
+
+- `ListView.builder` via `delegate.itemCount`, `delegate.itemBuilder`, and
+  `delegate.findChildIndexCallback`
+- eager/custom children via `delegate.buildChildren(context)`
+- sliver-style hosts via `delegate.buildSliverChildDelegate()`
+
+Behavior notes:
+
+- same key => same logical item, no leave/enter cycle
+- removed key => retained entry plays `onDisappear`, then is removed
+- same key returning before exit completes => exiting entry is revived
+- transition builders should animate the provided child instead of replacing it
+
+Like `AnimatedPresence`, this is for insert/remove presence, not animated
+switching or full reorder choreography.
+
 ## Internals (high level)
 
 - Each effect resolves to an `EffectEntry(delay, motion, span)`.

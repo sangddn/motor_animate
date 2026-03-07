@@ -49,6 +49,65 @@ Override globally if needed:
 Animate.defaultMotion = Motion.curved(450.ms, Curves.easeOutCubic);
 ```
 
+## Presence animations
+
+Use `AnimatedPresence` when a child should disappear from your data model
+immediately, but you still want the last rendered widget to finish an exit
+animation.
+
+```dart
+AnimatedPresence(
+  child: isSelected ? const Icon(Icons.check).animate() : null,
+  onAppear: (context, child) =>
+      child.fadeIn().scale(begin: const Offset(0.9, 0.9)),
+  onDisappear: (context, child) =>
+      child.fadeOut(motion: Motion.linear(180.ms)),
+)
+```
+
+Guidance:
+
+- Keep your UI truthful to state: pass `null` as soon as the child is absent.
+- Use it for one logical child toggling between present and absent.
+- Do not use it as an `AnimatedSwitcher` replacement for swapping between
+  different non-null children.
+
+## Collection presence
+
+Use `MultiAnimatedPresence` when you want the same insert/remove presence
+behavior for keyed collections, but still want to choose the underlying host
+widget yourself.
+
+```dart
+MultiAnimatedPresence<Message, String>(
+  items: messages,
+  keyOf: (message) => message.id,
+  itemBuilder: (context, entry) => MessageTile(message: entry.item),
+  onAppear: (context, entry, child) => child.fadeIn().slideY(begin: 0.08),
+  onDisappear: (context, entry, child) =>
+      child.fadeOut(motion: Motion.linear(180.ms)).sizeY(alignment: -1),
+  builder: (context, delegate) {
+    return ListView.builder(
+      itemCount: delegate.itemCount,
+      itemBuilder: delegate.itemBuilder,
+      findChildIndexCallback: delegate.findChildIndexCallback,
+    );
+  },
+)
+```
+
+Notes:
+
+- Same key means same logical item.
+- Removing a key keeps its last rendered entry alive until `onDisappear`
+  finishes.
+- Reintroducing the same key before exit completes revives the entry instead of
+  creating a second copy.
+- Transition builders should animate the provided `child`; they should not swap
+  in a different widget tree.
+- This is for insert/remove presence, not animated switching or reorder
+  choreography.
+
 ## Imperative API (motion-first)
 
 ```dart
