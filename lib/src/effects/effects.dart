@@ -21,6 +21,7 @@ export 'shader_effect.dart';
 export 'shake_effect.dart';
 export 'shimmer_effect.dart';
 export 'slide_effect.dart';
+export 'size_effect.dart';
 export 'swap_effect.dart';
 export 'then_effect.dart';
 export 'tint_effect.dart';
