@@ -158,7 +158,10 @@ class MultiAnimatedPresenceDelegate<T, K extends Object> {
 ///   itemBuilder: (context, entry) => MessageTile(message: entry.item),
 ///   onAppear: (context, entry, child) => child.fadeIn().slideY(begin: 0.08),
 ///   onDisappear: (context, entry, child) =>
-///       child.fadeOut().sizeY(alignment: -1),
+///       child.fadeOut().sizeY(
+///         alignment: Alignment.topCenter,
+///         clip: Clip.hardEdge,
+///       ),
 ///   builder: (context, delegate) {
 ///     return ListView.builder(
 ///       itemCount: delegate.itemCount,

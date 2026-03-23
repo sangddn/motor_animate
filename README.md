@@ -85,7 +85,10 @@ MultiAnimatedPresence<Message, String>(
   itemBuilder: (context, entry) => MessageTile(message: entry.item),
   onAppear: (context, entry, child) => child.fadeIn().slideY(begin: 0.08),
   onDisappear: (context, entry, child) =>
-      child.fadeOut(motion: Motion.linear(180.ms)).sizeY(alignment: -1),
+      child.fadeOut(motion: Motion.linear(180.ms)).sizeY(
+        alignment: Alignment.topCenter,
+        clip: Clip.hardEdge,
+      ),
   builder: (context, delegate) {
     return ListView.builder(
       itemCount: delegate.itemCount,
