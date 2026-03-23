@@ -5,6 +5,9 @@ import 'package:motor_animate/motor_animate.dart';
 
 import 'tester_extensions.dart';
 
+double _secondsFor(Duration duration) =>
+    duration.inMicroseconds / Duration.microsecondsPerSecond;
+
 void main() {
   // can really only test if warn throws an error:
   test('warn', () async {
@@ -55,6 +58,29 @@ void main() {
       (w) => w.opacity.value,
       .75,
       'opacity',
+    );
+  });
+
+  test('bouncy cupertino springs use settle span instead of nominal duration',
+      () {
+    const motion = CupertinoMotion.bouncy(
+      duration: Duration(milliseconds: 500),
+      extraBounce: 0.1,
+      snapToEnd: true,
+    );
+
+    final simulation = motion.createSimulation(start: 0, end: 1, velocity: 0);
+    final span = EffectEntry.estimateSpanFor(motion);
+
+    expect(
+      span,
+      greaterThan(motion.duration),
+      reason:
+          'Bouncy Cupertino springs need extra tail time beyond their nominal duration to avoid visual cutoff.',
+    );
+    expect(
+      (1 - simulation.x(_secondsFor(span))).abs(),
+      lessThanOrEqualTo(simulation.tolerance.distance),
     );
   });
 

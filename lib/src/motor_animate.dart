@@ -128,7 +128,6 @@ class _MotionPhase {
   static Duration estimateSpan(Motion motion) {
     if (motion case CurvedMotion(:final duration)) return duration;
     if (motion case NoMotion(:final duration)) return duration;
-    if (motion case CupertinoMotion(:final duration)) return duration;
 
     final Simulation simulation =
         motion.createSimulation(start: 0, end: 1, velocity: 0);
